@@ -9,91 +9,129 @@ import java.util.ArrayList;
 
 public class DbManipulation {
 	public boolean insertSubject(String type) {
-        try {
-            Connection connection = DbUtil.getConnection();
-            PreparedStatement statement = connection.prepareStatement("INSERT INTO subject (name) VALUES (?)");
-            statement.setString(1, type);
-            int rowsAffected = statement.executeUpdate();
-            return rowsAffected > 0;
+        try (Connection connection = DbUtil.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO Subject (subject_name) VALUES (?)")) {
+
+ 
+
+            preparedStatement.setString(1, type);
+            int rowsInserted = preparedStatement.executeUpdate();
+            return rowsInserted > 0;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
 
+ 
+
     public ArrayList<Object> getSubjectById(int id) {
-        ArrayList<Object> result = new ArrayList<>();
-        try {
-            Connection connection = DbUtil.getConnection();
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM subject WHERE id = ?");
-            statement.setInt(1, id);
-            ResultSet resultSet = statement.executeQuery();
+        ArrayList<Object> subjectData = new ArrayList<>();
+        try (Connection connection = DbUtil.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM Subject WHERE subject_id = ?")) {
+
+ 
+
+            preparedStatement.setInt(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                result.add(resultSet.getInt("id"));
-                result.add(resultSet.getString("name"));
+                int subjectId = resultSet.getInt("subject_id");
+                String subjectName = resultSet.getString("subject_name");
+                subjectData.add(subjectId);
+                subjectData.add(subjectName);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return result;
+        return subjectData;
     }
+
+ 
 
     public ResultSet getAllSubjects() {
         try {
             Connection connection = DbUtil.getConnection();
-            Statement statement = connection.createStatement();
-            return statement.executeQuery("SELECT * FROM subject");
+            return connection.createStatement().executeQuery("SELECT * FROM Subject");
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    public boolean insertStudent(String student_name, float score, String name) {
-        try {
-            Connection connection = DbUtil.getConnection();
-            PreparedStatement statement = connection.prepareStatement(
-                    "INSERT INTO student (name, score, subject_id) VALUES (?, ?, " +
-                            "(SELECT id FROM subject WHERE name = ?))");
-            statement.setString(1, student_name);
-            statement.setFloat(2, score);
-            statement.setString(3, name);
-            int rowsAffected = statement.executeUpdate();
-            return rowsAffected > 0;
+ 
+
+//    public boolean insertStudent(String studentName, float score, String subjectName) {
+//        try (Connection connection = DbUtil.getConnection();
+//             PreparedStatement preparedStatement = connection.prepareStatement(
+//                     "INSERT INTO Student (student_name, score, subject_id) VALUES (?, ?, " +
+//                             "(SELECT subject_id FROM Subject WHERE subject_name = ?))")) {
+//
+//            preparedStatement.setString(1, studentName);
+//            preparedStatement.setFloat(2, score);
+//            preparedStatement.setString(3, subjectName);
+//            int rowsInserted = preparedStatement.executeUpdate();
+//            return rowsInserted > 0;
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//            return false;
+//        }
+//    }
+    public boolean insertStudent(String studentName, float score, String subjectName) {
+        try (Connection connection = DbUtil.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(
+                     "INSERT INTO Student (student_name, score, subject_id) SELECT ?, ?, subject_id FROM Subject WHERE subject_name = ?")) {
+
+ 
+
+            preparedStatement.setString(1, studentName);
+            preparedStatement.setFloat(2, score);
+            preparedStatement.setString(3, subjectName);
+            int rowsInserted = preparedStatement.executeUpdate();
+            return rowsInserted > 0;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
 
+ 
+
+ 
+
     public ArrayList<Object> getStudentById(int id) {
-        ArrayList<Object> result = new ArrayList<>();
-        try {
-            Connection connection = DbUtil.getConnection();
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM student WHERE id = ?");
-            statement.setInt(1, id);
-            ResultSet resultSet = statement.executeQuery();
+        ArrayList<Object> studentData = new ArrayList<>();
+        try (Connection connection = DbUtil.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM Student WHERE student_id = ?")) {
+
+ 
+
+            preparedStatement.setInt(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                result.add(resultSet.getInt("id"));
-                result.add(resultSet.getString("name"));
-                result.add(resultSet.getFloat("score"));
-                result.add(resultSet.getInt("subject_id"));
+                int studentId = resultSet.getInt("student_id");
+                String studentName = resultSet.getString("student_name");
+                float score = resultSet.getFloat("score");
+                int subjectId = resultSet.getInt("subject_id");
+                studentData.add(studentId);
+                studentData.add(studentName);
+                studentData.add(score);
+                studentData.add(subjectId);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return result;
+        return studentData;
     }
+
+ 
 
     public ResultSet getAllStudents() {
         try {
             Connection connection = DbUtil.getConnection();
-            Statement statement = connection.createStatement();
-            return statement.executeQuery("SELECT * FROM student");
+            return connection.createStatement().executeQuery("SELECT * FROM Student");
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
         }
     }
-
 }
