@@ -1,0 +1,114 @@
+import java.util.*;
+import java.util.stream.Collectors;
+
+class MobileNumber {
+    private String number;
+
+    public MobileNumber(String number) {
+        this.number = number;
+    }
+
+    public String getNumber() {
+        return number;
+    }
+}
+
+class Address {
+    private String zipcode;
+
+    public Address(String zipcode) {
+        this.zipcode = zipcode;
+    }
+
+    public String getZipcode() {
+        return zipcode;
+    }
+}
+
+class Employee {
+    private String name;
+    private int age;
+    private Address address;
+    private List<MobileNumber> mobileNumbers;
+
+    public Employee(String name, int age, Address address, List<MobileNumber> mobileNumbers) {
+        this.name = name;
+        this.age = age;
+        this.address = address;
+        this.mobileNumbers = mobileNumbers;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public List<MobileNumber> getMobileNumbers() {
+        return mobileNumbers;
+    }
+
+    public Object getAge() {
+        return null;
+    }
+}
+
+public class main {
+    public static void main(String[] args) {
+        List<Employee> employees = Arrays.asList(
+                new Employee("Garima", 30, new Address("1234"), Arrays.asList(new MobileNumber("1233"))),
+                new Employee("Diggi", 25, new Address("1235"), Arrays.asList(new MobileNumber("1234"))),
+                new Employee("Akash", 28, new Address("1236"), Arrays.asList(new MobileNumber("1111"), new MobileNumber("3333"), new MobileNumber("4444")))
+        );
+
+       
+        List<Employee> garimaList = employees.stream()
+                .filter(employee -> employee.getName().equals("Garima"))
+                .collect(Collectors.toList());
+
+        
+        List<Employee> address1235List = employees.stream()
+                .filter(employee -> employee.getAddress().getZipcode().equals("1235"))
+                .collect(Collectors.toList());
+
+        List<Employee> mobileNumber3333List = employees.stream()
+                .filter(employee -> employee.getMobileNumbers().stream()
+                        .anyMatch(mobileNumber -> mobileNumber.getNumber().equals("3333")))
+                .collect(Collectors.toList());
+
+        List<Employee> mobileNumber1233and1234List = employees.stream()
+                .filter(employee -> employee.getMobileNumbers().stream()
+                        .anyMatch(mobileNumber -> mobileNumber.getNumber().equals("1233") || mobileNumber.getNumber().equals("1234")))
+                .collect(Collectors.toList());
+
+        List<TempEmployee> tempEmployees = employees.stream()
+                .map(employee -> new TempEmployee(employee.getName(), employee.getAge()))
+                .collect(Collectors.toList());
+
+        List<String> employeeNames = employees.stream()
+                .map(Employee::getName)
+                .collect(Collectors.toList());
+
+        String employeeListString = employees.stream()
+                .map(Employee::toString)
+                .collect(Collectors.joining("\n"));
+
+        
+        List<String> upperCaseNames = employeeNames.stream()
+                .map(String::toUpperCase)
+                .collect(Collectors.toList());
+
+      
+        List<String> sortedNames = employeeNames.stream()
+                .sorted()
+                .collect(Collectors.toList());
+
+       
+        boolean flag = true; 
+        List<Employee> filteredList = employees.stream()
+                .filter(employee -> flag) 
+                .collect(Collectors.toList());
+    }
+}
